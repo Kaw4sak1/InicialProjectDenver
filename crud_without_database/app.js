@@ -1,22 +1,72 @@
-import express from 'express';
-import bodyParser from 'body-parser';
+import express, { response } from 'express';
 
 const app = express();
-const port = 4123;
+const port = 4231;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+    extended: true }));
+
+app.use(express.json());
+
+let inputs = ["INPUT_01", "INPUT_02", "INPUT_03"];
 
 app.get("/", (req, res) => {
-    return res.send("Denver");
+    return res.json({
+        message:"GET => OK"
+    })
 });
-app.post("/users/", (req, res) => {
+
+app.post("/checked/", (req, res) => {
     try{
-        console.log("req.body", req.body);
-        res.sendStatus(200);
+        console.log("POST => OK");
+
+        const {value} = req.body;
+        inputs.push(value);
+        
+        return res.json({
+            inputs
+        });
+
     }catch(error){
-        res.sendStatus(500)
+        return res.sendStatus(500);
     }
 });
 
-app.listen(port, () => console.log(`[*] Listening => http://localhost:${port}`));
+app.put("/checked/:index", (req, res) => {
+    try{
+        console.log("PUT => OK");
+
+        const {index} = req.params;
+        const {value} = req.body;
+
+        inputs[index] = value;
+
+        return res.json({
+            inputs
+        });
+
+    }catch(error){
+        return res.sendStatus(500);
+    }
+});
+
+app.delete("/checked/:index", (req, res) => {
+    try{
+        var i = 1;
+        const {index} = req.params;
+
+        inputs.splice(index, i);
+
+        return res.json({
+            message: "Deleted"
+        });
+
+    }catch(error){
+        return res.sendStatus(500);
+    }
+});
+
+console.log("\n");
+console.log(inputs);
+
+app.listen(port, () => console.log(`http://localhost:${port}`));
